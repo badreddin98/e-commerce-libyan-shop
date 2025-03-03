@@ -26,8 +26,11 @@ const Products = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 200]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
   
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -76,7 +79,53 @@ const Products = () => {
 
   const handlePriceChange = (event, newValue) => {
     setPriceRange(newValue);
+    applyFilters(products, selectedCategories, selectedSizes, newValue);
   };
+
+  const handleCategoryChange = (category) => {
+    const newCategories = selectedCategories.includes(category)
+      ? selectedCategories.filter(c => c !== category)
+      : [...selectedCategories, category];
+    setSelectedCategories(newCategories);
+    applyFilters(products, newCategories, selectedSizes, priceRange);
+  };
+
+  const handleSizeChange = (size) => {
+    const newSizes = selectedSizes.includes(size)
+      ? selectedSizes.filter(s => s !== size)
+      : [...selectedSizes, size];
+    setSelectedSizes(newSizes);
+    applyFilters(products, selectedCategories, newSizes, priceRange);
+  };
+
+  const applyFilters = (products, categories, sizes, priceRange) => {
+    let filtered = [...products];
+
+    // Apply category filter
+    if (categories.length > 0) {
+      filtered = filtered.filter(product => categories.includes(product.category));
+    }
+
+    // Apply size filter
+    if (sizes.length > 0) {
+      filtered = filtered.filter(product => 
+        product.size.some(s => sizes.includes(s))
+      );
+    }
+
+    // Apply price filter
+    filtered = filtered.filter(product => 
+      product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+
+    setFilteredProducts(filtered);
+  };
+
+  useEffect(() => {
+    if (products.length > 0) {
+      applyFilters(products, selectedCategories, selectedSizes, priceRange);
+    }
+  }, [products, selectedCategories, selectedSizes, priceRange]);
 
   const FilterDrawer = () => (
     <Box sx={{ width: 250, p: 2 }}>
@@ -96,7 +145,12 @@ const Products = () => {
         {categories.map((category) => (
           <ListItem key={category} dense>
             <FormControlLabel
-              control={<Checkbox />}
+              control={
+                <Checkbox 
+                  checked={selectedCategories.includes(category)}
+                  onChange={() => handleCategoryChange(category)}
+                />
+              }
               label={category}
             />
           </ListItem>
@@ -110,7 +164,12 @@ const Products = () => {
         {sizes.map((size) => (
           <FormControlLabel
             key={size}
-            control={<Checkbox />}
+            control={
+              <Checkbox 
+                checked={selectedSizes.includes(size)}
+                onChange={() => handleSizeChange(size)}
+              />
+            }
             label={size}
           />
         ))}
@@ -167,7 +226,7 @@ const Products = () => {
                   {error}
                 </Alert>
               ) : (
-                products.map((product) => (
+                (filteredProducts.length > 0 ? filteredProducts : products).map((product) => (
                   <Grid item key={product._id} xs={12} sm={6} md={4}>
                     <ProductCard product={product} />
                   </Grid>

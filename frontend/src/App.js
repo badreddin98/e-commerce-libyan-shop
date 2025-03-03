@@ -36,9 +36,10 @@ const theme = createTheme({
 function App() {
   return (
     <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router basename="/">
+      <CartProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Router basename="/">
         <Box
           sx={{
             display: 'flex',
@@ -67,8 +68,9 @@ function App() {
           </Box>
           <Footer />
         </Box>
-        </Router>
-      </ThemeProvider>
+          </Router>
+        </ThemeProvider>
+      </CartProvider>
     </AuthProvider>
   );
 }

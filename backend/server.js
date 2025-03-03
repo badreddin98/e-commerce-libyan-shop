@@ -57,6 +57,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
+console.log('Using PORT:', PORT);
 
 // Connect to database and start server
 const startServer = async () => {
@@ -65,7 +66,7 @@ const startServer = async () => {
     await connectDB();
     console.log('MongoDB connection successful');
     
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
       console.log('Try accessing: http://localhost:' + PORT + '/api/products');
     });

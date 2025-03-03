@@ -38,7 +38,7 @@ function App() {
     <AuthProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
+        <Router basename="/">
         <Box
           sx={{
             display: 'flex',

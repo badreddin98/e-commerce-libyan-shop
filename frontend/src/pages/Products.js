@@ -34,11 +34,24 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        console.log('Fetching products from:', `${API_BASE_URL}/products`);
         const response = await fetch(`${API_BASE_URL}/products`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Products data:', data);
+        
+        if (!data.products) {
+          throw new Error('No products data received');
+        }
+        
         setProducts(data.products);
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching products:', err);
         setError(err.message);
         setLoading(false);
       }

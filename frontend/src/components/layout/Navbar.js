@@ -109,7 +109,7 @@ const Navbar = () => {
             letterSpacing: 1,
           }}
         >
-          FASHION STORE
+          LIBYAN SHOP
         </Typography>
 
         <Search>

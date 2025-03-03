@@ -1,7 +1,7 @@
 {
-  "name": "fashion-ecommerce",
+  "name": "libyan-shop",
   "version": "1.0.0",
-  "description": "Fashion E-commerce Platform",
+  "description": "Libyan Shop E-commerce Platform",
   "main": "server.js",
   "engines": {
     "node": "18.x"

@@ -15,9 +15,20 @@ const registerUser = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    // Validate input
+    // Enhanced validation
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: 'Please fill in all fields' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Please enter a valid email address' });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
     }
 
     // Check if user exists
@@ -63,7 +74,15 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Please provide email and password' });
+    }
+
     const user = await User.findOne({ email });
+    
+    // Add delay to prevent brute force attacks
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     if (user && (await user.matchPassword(password))) {
       res.json({

@@ -39,17 +39,20 @@ app.get('/api/test', (req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  const staticPath = path.join(__dirname, '../frontend/build');
+  console.log('Static path:', staticPath);
+  app.use(express.static(staticPath));
+
+  // Handle API routes first
+  app.use('/api/*', (req, res) => {
+    res.status(404).json({ message: 'API endpoint not found' });
+  });
 
   // All other routes should redirect to the index.html
   app.get('*', (req, res) => {
-    // Only redirect non-API routes to index.html
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.resolve(__dirname, '../frontend/build/index.html'));
-    } else {
-      // If it's an API route that wasn't matched, return 404
-      res.status(404).json({ message: 'API endpoint not found' });
-    }
+    const indexPath = path.resolve(__dirname, '../frontend/build/index.html');
+    console.log('Serving index.html from:', indexPath);
+    res.sendFile(indexPath);
   });
 }
 

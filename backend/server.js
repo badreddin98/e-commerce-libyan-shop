@@ -31,15 +31,24 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/scraper', require('./routes/scraperRoutes'));
 
+// API routes
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working' });
+});
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
   app.use(express.static(path.join(__dirname, '../frontend/build')));
 
-  // Any route that is not api will be redirected to index.html
+  // All other routes should redirect to the index.html
   app.get('*', (req, res) => {
+    // Only redirect non-API routes to index.html
     if (!req.path.startsWith('/api')) {
       res.sendFile(path.resolve(__dirname, '../frontend/build/index.html'));
+    } else {
+      // If it's an API route that wasn't matched, return 404
+      res.status(404).json({ message: 'API endpoint not found' });
     }
   });
 }

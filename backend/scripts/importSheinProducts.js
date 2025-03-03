@@ -2,7 +2,19 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+const MONGODB_URI = 'mongodb+srv://elyazgi98:TjGyVgyz7L44U8A4@cluster0.ajvsb.mongodb.net/libyan-shop?retryWrites=true&w=majority&appName=Cluster0';
+
 // Product model schema
+// Drop the existing products collection to remove indexes
+const dropCollection = async () => {
+  try {
+    await mongoose.connection.dropCollection('products');
+    console.log('Dropped products collection');
+  } catch (error) {
+    console.log('Collection might not exist, continuing...');
+  }
+};
+
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
@@ -27,54 +39,88 @@ const categories = [
   'accessories'
 ];
 
-async function fetchSheinProducts() {
+async function createSampleProducts() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    // Clear existing products
+    // Drop collection to remove indexes
+    await dropCollection();
+    
+    // Clear existing products if any remain
     await Product.deleteMany({});
     console.log('Cleared existing products');
 
     const products = [];
-    let totalProducts = 0;
+    
+    // Sample product data for each category
+    const productData = {
+      dresses: [
+        { name: 'Floral Summer Dress', price: 49.99 },
+        { name: 'Evening Gown', price: 89.99 },
+        { name: 'Casual Maxi Dress', price: 39.99 }
+      ],
+      tops: [
+        { name: 'Basic White T-Shirt', price: 19.99 },
+        { name: 'Striped Blouse', price: 29.99 },
+        { name: 'Crop Top', price: 24.99 }
+      ],
+      pants: [
+        { name: 'High-Waist Jeans', price: 59.99 },
+        { name: 'Cargo Pants', price: 49.99 },
+        { name: 'Leggings', price: 29.99 }
+      ],
+      skirts: [
+        { name: 'Pleated Midi Skirt', price: 39.99 },
+        { name: 'Mini Denim Skirt', price: 34.99 },
+        { name: 'A-Line Skirt', price: 44.99 }
+      ],
+      outerwear: [
+        { name: 'Denim Jacket', price: 69.99 },
+        { name: 'Winter Coat', price: 99.99 },
+        { name: 'Bomber Jacket', price: 79.99 }
+      ],
+      shoes: [
+        { name: 'Sneakers', price: 59.99 },
+        { name: 'Ankle Boots', price: 79.99 },
+        { name: 'Sandals', price: 39.99 }
+      ],
+      accessories: [
+        { name: 'Leather Handbag', price: 89.99 },
+        { name: 'Statement Necklace', price: 29.99 },
+        { name: 'Silk Scarf', price: 24.99 }
+      ]
+    };
 
+    // Create multiple variations of each product
     for (const category of categories) {
-      if (totalProducts >= 100) break;
+      const baseProducts = productData[category];
+      for (const baseProduct of baseProducts) {
+        // Create variations of each product
+        const variations = [
+          { color: 'Black', size: 'S' },
+          { color: 'White', size: 'M' },
+          { color: 'Blue', size: 'L' },
+          { color: 'Red', size: 'XL' },
+          { color: 'Pink', size: 'S' }
+        ];
 
-      const response = await axios.get(`https://api.shein.com/v2/products/list?category=${category}&limit=15`);
-      
-      if (response.data && response.data.products) {
-        const categoryProducts = response.data.products.map(item => ({
-          name: item.name,
-          description: item.description || `Beautiful ${category} item from our collection`,
-          price: (item.price * 1.3).toFixed(2), // Adding 30% markup
-          images: item.images || [`https://placeholder.com/400x600?text=${encodeURIComponent(item.name)}`],
-          category: category,
-          stock: Math.floor(Math.random() * 50) + 10,
-          ratings: (Math.random() * 2 + 3).toFixed(1), // Random rating between 3 and 5
-          numReviews: Math.floor(Math.random() * 100)
-        }));
-
-        products.push(...categoryProducts);
-        totalProducts += categoryProducts.length;
+        for (const variation of variations) {
+          products.push({
+            name: `${baseProduct.name} - ${variation.color}`,
+            description: `Beautiful ${category} item from our collection. Color: ${variation.color}, Size: ${variation.size}`,
+            price: baseProduct.price,
+            images: [
+              `https://picsum.photos/400/600?random=${Math.floor(Math.random() * 1000)}`,
+              `https://picsum.photos/400/600?random=${Math.floor(Math.random() * 1000)}`
+            ],
+            category: category,
+            stock: Math.floor(Math.random() * 50) + 10,
+            ratings: (Math.random() * 2 + 3).toFixed(1),
+            numReviews: Math.floor(Math.random() * 100)
+          });
+        }
       }
-    }
-
-    // If we couldn't get real products, create sample ones
-    if (products.length < 100) {
-      const sampleProducts = Array.from({ length: 100 - products.length }, (_, i) => ({
-        name: `Sample Product ${i + 1}`,
-        description: 'A beautiful product from our collection',
-        price: Math.floor(Math.random() * 100) + 20,
-        images: ['https://via.placeholder.com/400x600'],
-        category: categories[Math.floor(Math.random() * categories.length)],
-        stock: Math.floor(Math.random() * 50) + 10,
-        ratings: (Math.random() * 2 + 3).toFixed(1),
-        numReviews: Math.floor(Math.random() * 100)
-      }));
-
-      products.push(...sampleProducts);
     }
 
     // Insert products into database
@@ -88,4 +134,4 @@ async function fetchSheinProducts() {
   }
 }
 
-fetchSheinProducts();
+createSampleProducts();

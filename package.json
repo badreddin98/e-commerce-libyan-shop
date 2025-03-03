@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Fashion E-commerce Platform",
   "main": "server.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node backend/server.js",
     "server": "nodemon backend/server.js",

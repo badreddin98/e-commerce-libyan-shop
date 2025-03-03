@@ -44,8 +44,12 @@ const Products = () => {
         const data = await response.json();
         console.log('Products data:', data);
         
-        if (!data.products) {
-          throw new Error('No products data received');
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to fetch products');
+        }
+        
+        if (!Array.isArray(data.products)) {
+          throw new Error('Invalid products data received');
         }
         
         setProducts(data.products);

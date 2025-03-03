@@ -20,14 +20,35 @@ const connectDB = async () => {
     );
     console.log('Attempting to connect to MongoDB with URI:', sanitizedUri);
     
+    // Parse the connection string to get database name
+    const dbName = process.env.MONGODB_URI.includes('?') ? 
+      process.env.MONGODB_URI.split('?')[0].split('/').pop() : 
+      'libyan-shop';
+
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000,
-      heartbeatFrequencyMS: 2000,
+      serverSelectionTimeoutMS: 5000, // Reduced timeout
+      socketTimeoutMS: 45000,
+      family: 4, // Use IPv4
+      dbName: dbName,
       retryWrites: true,
-      w: 'majority',
-      ssl: true,
+      w: 'majority'
+    });
+    
+    // Set up connection error handler
+    mongoose.connection.on('error', err => {
+      console.error('MongoDB connection error:', err);
+    });
+
+    // Set up disconnection handler
+    mongoose.connection.on('disconnected', () => {
+      console.log('MongoDB disconnected. Attempting to reconnect...');
+    });
+
+    // Set up successful reconnection handler
+    mongoose.connection.on('reconnected', () => {
+      console.log('MongoDB reconnected successfully!');
     });
     
     console.log(`MongoDB Connected: ${conn.connection.host}`);

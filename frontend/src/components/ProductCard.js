@@ -35,10 +35,13 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const StyledCardMedia = styled(CardMedia)({
+const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
+  height: 0,
   paddingTop: '133.33%', // 4:3 aspect ratio
   position: 'relative',
-});
+  backgroundColor: theme.palette.grey[100],
+  backgroundSize: 'cover',
+}));
 
 const PriceTypography = styled(Typography)(({ theme }) => ({
   fontWeight: 'bold',
@@ -120,18 +123,18 @@ const ProductCard = ({ product }) => {
             {product.name}
           </Typography>
           <Box display="flex" alignItems="center" mb={1}>
-            <Rating value={product.rating} precision={0.5} readOnly size="small" />
+            <Rating value={product.rating || 0} precision={0.5} readOnly size="small" />
             <Typography variant="body2" color="text.secondary" ml={1}>
-              ({product.numReviews})
+              ({product.numReviews || 0})
             </Typography>
           </Box>
           <Box display="flex" alignItems="center">
             <PriceTypography variant="h6">
-              ${product.price.toFixed(2)}
+              ${(product.price || 0).toFixed(2)}
             </PriceTypography>
-            {product.originalPrice > product.price && (
+            {product.originalPrice && product.originalPrice > product.price && (
               <OriginalPrice variant="body1">
-                ${product.originalPrice.toFixed(2)}
+                ${(product.originalPrice || 0).toFixed(2)}
               </OriginalPrice>
             )}
           </Box>
@@ -160,8 +163,8 @@ const ProductCard = ({ product }) => {
             label="Size"
             onChange={(e) => setSize(e.target.value)}
           >
-            {product.sizes?.map((size) => (
-              <MenuItem key={size} value={size}>{size}</MenuItem>
+            {(product.size || []).map((s) => (
+              <MenuItem key={s} value={s}>{s}</MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -173,8 +176,8 @@ const ProductCard = ({ product }) => {
             label="Color"
             onChange={(e) => setColor(e.target.value)}
           >
-            {product.colors?.map((color) => (
-              <MenuItem key={color} value={color}>{color}</MenuItem>
+            {(product.color || []).map((c) => (
+              <MenuItem key={c} value={c}>{c}</MenuItem>
             ))}
           </Select>
         </FormControl>

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import API_BASE_URL from '../config/api';
 
 const CartContext = createContext(null);
 
@@ -22,7 +23,7 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       const token = localStorage.getItem('userToken');
       
-      const response = await fetch('http://localhost:5000/api/cart', {
+      const response = await fetch(`${API_BASE_URL}/cart`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -44,7 +45,7 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       const token = localStorage.getItem('userToken');
       
-      const response = await fetch('http://localhost:5000/api/cart/add', {
+      const response = await fetch(`${API_BASE_URL}/cart/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +74,7 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       const token = localStorage.getItem('userToken');
       
-      const response = await fetch('http://localhost:5000/api/cart/update', {
+      const response = await fetch(`${API_BASE_URL}/cart/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +103,7 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       const token = localStorage.getItem('userToken');
       
-      const response = await fetch('http://localhost:5000/api/cart/remove', {
+      const response = await fetch(`${API_BASE_URL}/cart/remove`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

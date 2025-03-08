@@ -7,7 +7,9 @@ import {
   Paper,
   Container,
   Alert,
+  Divider,
 } from '@mui/material';
+import { GoogleLogin } from '@react-oauth/google';
 import { styled } from '@mui/material/styles';
 
 const FormContainer = styled(Paper)(({ theme }) => ({
@@ -126,6 +128,26 @@ const AuthForm = ({
               ? 'Sign In'
               : 'Create Account'}
           </SubmitButton>
+
+          <Box sx={{ mt: 3, position: 'relative' }}>
+            <Divider sx={{ my: 2 }}>
+              <Typography variant="body2" color="textSecondary">
+                OR
+              </Typography>
+            </Divider>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+              <GoogleLogin
+                onSuccess={() => {
+                  window.location.href = `${process.env.REACT_APP_API_URL}/api/auth/google`;
+                }}
+                onError={() => {
+                  console.error('Google Login Failed');
+                }}
+                useOneTap
+              />
+            </Box>
+          </Box>
         </Form>
       </FormContainer>
     </Container>

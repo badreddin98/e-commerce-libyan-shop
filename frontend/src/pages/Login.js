@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { Container, Link } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import AuthForm from '../components/AuthForm';
 
 const Login = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  useEffect(() => {
+    // Check for token in URL (from Google OAuth redirect)
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    if (token) {
+      localStorage.setItem('userToken', token);
+      navigate('/');
+    }
+  }, [location, navigate]);
   const [formData, setFormData] = useState({
     email: '',
     password: '',

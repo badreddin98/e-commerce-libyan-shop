@@ -1,5 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Button,
+  IconButton,
+  Skeleton,
+  useTheme,
+  styled,
+  Paper,
+  Divider,
+  Chip,
+  TextField,
+  InputAdornment
+} from '@mui/material';
+import {
+  Search as SearchIcon,
+  LocalShipping,
+  Security,
+  CreditCard,
+  Support,
+  ArrowForward,
+  TrendingUp,
+  Star,
+  NewReleases
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
+import { motion } from 'framer-motion'; from 'react';
+import {
+  Box,
   Container,
   Grid,
   Card,
@@ -7,66 +40,295 @@ import {
   CardContent,
   Typography,
   Button,
-  Box,
+  IconButton,
+  Skeleton,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Favorite, ShoppingCart } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
-const HeroBanner = styled(Box)(({ theme }) => ({
-  backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3")',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  height: '80vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: 'white',
-  textAlign: 'center',
-  marginBottom: theme.spacing(4),
+
+
+const BannerSection = styled(Box)(({ theme }) => ({
   position: 'relative',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  height: '600px',
+  overflow: 'hidden',
+  marginBottom: theme.spacing(4),
+}));
+
+const BannerImage = styled('img')({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+});
+
+const BannerContent = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  textAlign: 'center',
+  color: 'white',
+  zIndex: 1,
+}));
+
+const CategoryCard = styled(Card)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-8px)',
   },
 }));
 
+const ProductCard = styled(Card)(({ theme }) => ({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-8px)',
+  },
+}));
+
+// Styled components
+const HeroSection = styled(Box)(({ theme }) => ({
+  background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.light} 90%)`,
+  color: theme.palette.primary.contrastText,
+  padding: theme.spacing(15, 0),
+  marginBottom: theme.spacing(6),
+  position: 'relative',
+  overflow: 'hidden',
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: '50%',
+    background: 'url(/hero-pattern.svg) repeat',
+    opacity: 0.1,
+  }
+}));
+
+const FeatureCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(3),
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  textAlign: 'center',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-8px)',
+  }
+}));
+
+const CategoryCard = styled(Card)(({ theme }) => ({
+  cursor: 'pointer',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'scale(1.05)',
+  }
+}));
+
 const Home = () => {
-  // Placeholder data - this would come from your API
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [trendingProducts, setTrendingProducts] = useState([]);
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const categories = [
+    { title: 'Women', image: 'https://img.ltwebstatic.com/images3_pi/2023/11/20/1700468611d61c0cafcd50b0ec7602961cab46d468_thumbnail_900x.webp' },
+    { title: 'Men', image: 'https://img.ltwebstatic.com/images3_pi/2023/11/21/17005511432f2d6f4b8f0def6ce0b9c6f2dd658f6d_thumbnail_900x.webp' },
+    { title: 'Kids', image: 'https://img.ltwebstatic.com/images3_pi/2023/11/21/1700551143e5a6c5fd7e5926dd0978c6fe3026019f_thumbnail_900x.webp' },
+    { title: 'Beauty', image: 'https://img.ltwebstatic.com/images3_pi/2023/11/21/17005511432f2d6f4b8f0def6ce0b9c6f2dd658f6d_thumbnail_900x.webp' },
+  ];
+
   const featuredProducts = [
     {
       id: 1,
-      name: 'Summer Floral Dress',
+      title: 'Floral Summer Dress',
       price: 29.99,
-      image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3',
+      image: 'https://img.ltwebstatic.com/images3_pi/2023/11/20/1700468611d61c0cafcd50b0ec7602961cab46d468_thumbnail_900x.webp',
+      discount: 20,
     },
     {
       id: 2,
-      name: 'Elegant Blouse',
-      price: 19.99,
-      image: 'https://images.unsplash.com/photo-1564257631407-4deb1f99d992?ixlib=rb-4.0.3',
+      title: 'Denim Jacket',
+      price: 49.99,
+      image: 'https://img.ltwebstatic.com/images3_pi/2023/11/21/17005511432f2d6f4b8f0def6ce0b9c6f2dd658f6d_thumbnail_900x.webp',
+      discount: 15,
     },
-    {
-      id: 3,
-      name: 'Designer Jeans',
-      price: 39.99,
-      image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-4.0.3',
-    },
-    {
-      id: 4,
-      name: 'Evening Gown',
-      price: 89.99,
-      image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?ixlib=rb-4.0.3',
-    },
+    // Add more products as needed
   ];
 
+
+    const features = [
+    { icon: <LocalShipping fontSize="large" />, title: 'Free Shipping', description: 'On orders over $50' },
+    { icon: <Security fontSize="large" />, title: 'Secure Payments', description: 'Protected by SSL' },
+    { icon: <CreditCard fontSize="large" />, title: 'Easy Returns', description: '30-day return policy' },
+    { icon: <Support fontSize="large" />, title: '24/7 Support', description: 'Live chat support' },
+  ];
+
+  const categories = [
+    { name: 'Women\'s Fashion', image: '/categories/women.jpg', link: '/category/women' },
+    { name: 'Men\'s Fashion', image: '/categories/men.jpg', link: '/category/men' },
+    { name: 'Accessories', image: '/categories/accessories.jpg', link: '/category/accessories' },
+    { name: 'Shoes', image: '/categories/shoes.jpg', link: '/category/shoes' },
+  ];
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        // Fetch featured products
+        const featuredResponse = await fetch('/api/products/featured');
+        const featuredData = await featuredResponse.json();
+        setFeaturedProducts(featuredData);
+
+        // Fetch trending products
+        const trendingResponse = await fetch('/api/products/trending');
+        const trendingData = await trendingResponse.json();
+        setTrendingProducts(trendingData);
+
+        // Fetch new arrivals
+        const newArrivalsResponse = await fetch('/api/products/new-arrivals');
+        const newArrivalsData = await newArrivalsResponse.json();
+        setNewArrivals(newArrivalsData);
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate(`/products?search=${searchQuery}`);
+  };
+
   return (
-    <Box sx={{ pt: 8 }}>
-      <HeroBanner>
-        <Box>
+    <Box>
+      {/* Hero Banner */}
+      <BannerSection>
+        <BannerImage
+          src="https://img.ltwebstatic.com/images3_pi/2023/11/20/1700468611d61c0cafcd50b0ec7602961cab46d468_thumbnail_900x.webp"
+          alt="Hero Banner"
+        />
+        <BannerContent>
+          <Typography variant="h2" component="h1" gutterBottom>
+            Spring Collection 2024
+          </Typography>
+          <Typography variant="h5" gutterBottom>
+            Up to 70% Off
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            sx={{ mt: 2, bgcolor: 'white', color: 'black' }}
+            onClick={() => navigate('/products')}
+          >
+            Shop Now
+          </Button>
+        </BannerContent>
+      </BannerSection>
+
+      {/* Categories Section */}
+      <Container maxWidth="xl">
+        <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
+          Shop by Category
+        </Typography>
+        <Grid container spacing={3} sx={{ mb: 6 }}>
+          {categories.map((category) => (
+            <Grid item xs={12} sm={6} md={3} key={category.title}>
+              <CategoryCard>
+                <CardMedia
+                  component="img"
+                  height="300"
+                  image={category.image}
+                  alt={category.title}
+                />
+                <CardContent>
+                  <Typography variant="h6" align="center">
+                    {category.title}
+                  </Typography>
+                </CardContent>
+              </CategoryCard>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Featured Products Section */}
+        <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
+          Featured Products
+        </Typography>
+        <Grid container spacing={3}>
+          {featuredProducts.map((product) => (
+            <Grid item xs={12} sm={6} md={3} key={product.id}>
+              <ProductCard>
+                <CardMedia
+                  component="img"
+                  height="400"
+                  image={product.image}
+                  alt={product.title}
+                />
+                {product.discount && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 16,
+                      right: 16,
+                      bgcolor: 'error.main',
+                      color: 'white',
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                    }}
+                  >
+                    -{product.discount}%
+                  </Box>
+                )}
+                <CardContent>
+                  <Typography variant="subtitle1" gutterBottom>
+                    {product.title}
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography variant="h6" color="primary">
+                      ${product.price}
+                    </Typography>
+                    <Box>
+                      <IconButton size="small">
+                        <Favorite />
+                      </IconButton>
+                      <IconButton size="small">
+                        <ShoppingCart />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </ProductCard>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
+    <Box>
           <Typography variant="h2" component="h1" gutterBottom>
             Latest Fashion Trends
           </Typography>

@@ -17,6 +17,7 @@ import {
   useTheme,
   CircularProgress,
   Alert,
+  styled,
 } from '@mui/material';
 import { FilterList, Close } from '@mui/icons-material';
 import ProductCard from '../components/ProductCard';

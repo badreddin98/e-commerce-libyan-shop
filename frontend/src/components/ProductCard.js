@@ -150,7 +150,6 @@ const ProductCard = ({ product }) => {
     };
   }, [product.images]);
 
-  const hasOptions = product.size?.length > 0 || product.color?.length > 0;
   const discount = product.originalPrice ? 
     Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
@@ -181,6 +180,9 @@ const ProductCard = ({ product }) => {
         message: 'Added to cart successfully',
         severity: 'success'
       });
+      if (optionsDialogOpen) {
+        setOptionsDialogOpen(false);
+      }
     } catch (error) {
       setSnackbar({
         open: true,
@@ -210,51 +212,8 @@ const ProductCard = ({ product }) => {
 
   const hasOptions = (product.size?.length > 0 || product.color?.length > 0);
 
-  const handleDirectAddToCart = async () => {
-    if (!user) {
-      setSnackbar({
-        open: true,
-        message: 'Please login to add items to cart',
-        severity: 'warning'
-      });
-      return;
-    }
-
-    const result = await addToCart(product._id, 1, 'default', 'default');
-    if (result.success) {
-      setSnackbar({
-        open: true,
-        message: 'Added to cart successfully',
-        severity: 'success'
-      });
-    } else {
-      setSnackbar({
-        open: true,
-        message: result.error || 'Failed to add to cart',
-        severity: 'error'
-      });
-    }
-  };
-
-  const handleAddToCart = async () => {
-    if (!hasOptions) {
-      handleDirectAddToCart();
-      return;
-    }
-
-    if (!user) {
-      setSnackbar({
-        open: true,
-        message: 'Please login to add items to cart',
-        severity: 'warning'
-      });
-      return;
-    }
-    setOpen(true);
-  };
-
   const handleConfirmAdd = async () => {
-    if (hasOptions && (!size || !color)) {
+    if (hasOptions && (!selectedSize || !selectedColor)) {
       setSnackbar({
         open: true,
         message: 'Please select both size and color',
@@ -263,14 +222,14 @@ const ProductCard = ({ product }) => {
       return;
     }
 
-    const result = await addToCart(product._id, 1, size, color);
+    const result = await addToCart(product._id, 1, selectedSize, selectedColor);
     if (result.success) {
       setSnackbar({
         open: true,
         message: 'Added to cart successfully',
         severity: 'success'
       });
-      setOpen(false);
+      setOptionsDialogOpen(false);
     } else {
       setSnackbar({
         open: true,
@@ -281,9 +240,9 @@ const ProductCard = ({ product }) => {
   };
 
   const handleClose = () => {
-    setOpen(false);
-    setSize('');
-    setColor('');
+    setOptionsDialogOpen(false);
+    setSelectedSize('');
+    setSelectedColor('');
   };
 
   const handleSnackbarClose = () => {
@@ -493,6 +452,7 @@ const ProductCard = ({ product }) => {
         {snackbar.message}
       </Alert>
     </Snackbar>
+    </>
   );
 };
 

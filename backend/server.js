@@ -25,11 +25,12 @@ app.get('/api/test', (req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
-  app.use(express.static('frontend/build'));
+  const frontendBuildPath = path.resolve(__dirname, '../frontend/build');
+  app.use(express.static(frontendBuildPath));
 
   // Any route that is not api will be redirected to index.html
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'));
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
   });
 }
 

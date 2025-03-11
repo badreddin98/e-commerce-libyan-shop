@@ -16,6 +16,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/cart', require('./routes/cartRoutes'));
 
 // Test route
 app.get('/api/test', (req, res) => {

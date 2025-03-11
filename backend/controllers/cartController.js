@@ -1,5 +1,6 @@
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
+const mongoose = require('mongoose');
 
 // @desc    Add item to cart
 // @route   POST /api/cart/add
@@ -66,7 +67,7 @@ const addToCart = async (req, res) => {
 // @access  Private
 const getCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
+    let cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
     
     if (!cart) {
       return res.status(200).json({
@@ -75,10 +76,22 @@ const getCart = async (req, res) => {
       });
     }
 
+    // Remove any items where the product no longer exists
+    cart.items = cart.items.filter(item => item.product);
+
+    // Recalculate total price
+    cart.totalPrice = cart.items.reduce((total, item) => {
+      return total + (item.quantity * (item.product ? item.product.price : 0));
+    }, 0);
+
+    await cart.save();
     res.status(200).json(cart);
   } catch (error) {
     console.error('Get cart error:', error);
-    res.status(500).json({ message: 'Failed to get cart' });
+    res.status(500).json({ 
+      message: 'Failed to get cart', 
+      error: error.message 
+    });
   }
 };
 

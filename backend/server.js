@@ -22,15 +22,29 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working' });
 });
 
+// Debug route to check environment
+app.get('/debug', (req, res) => {
+  res.json({
+    nodeEnv: process.env.NODE_ENV,
+    mongoUri: process.env.MONGODB_URI ? 'Set' : 'Not Set',
+    currentDir: __dirname,
+    frontendBuildPath: path.resolve(__dirname, '../frontend/build')
+  });
+});
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
   const frontendBuildPath = path.resolve(__dirname, '../frontend/build');
+  console.log('Frontend build path:', frontendBuildPath);
+  
   app.use(express.static(frontendBuildPath));
 
   // Any route that is not api will be redirected to index.html
   app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+    const indexPath = path.join(frontendBuildPath, 'index.html');
+    console.log('Serving index.html from:', indexPath);
+    res.sendFile(indexPath);
   });
 }
 

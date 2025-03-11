@@ -2,6 +2,9 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "homepage": "https://million-project-backend-eeb52b8b30d1.herokuapp.com",
   "dependencies": {
     "@emotion/react": "^11.14.0",

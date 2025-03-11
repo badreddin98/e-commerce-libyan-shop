@@ -21,6 +21,48 @@ import {
 import { FilterList, Close } from '@mui/icons-material';
 import ProductCard from '../components/ProductCard';
 
+const StyledDrawer = styled(Drawer)(({ theme }) => ({
+  '& .MuiDrawer-paper': {
+    backgroundColor: '#ffffff',
+    borderRight: 'none',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+  },
+}));
+
+const FilterButton = styled(IconButton)(({ theme }) => ({
+  border: '1px solid rgba(0, 0, 0, 0.12)',
+  borderRadius: '24px',
+  padding: '8px 16px',
+  gap: '8px',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    backgroundColor: '#f5f5f5',
+    transform: 'translateY(-2px)',
+  },
+  '& .MuiSvgIcon-root': {
+    fontSize: '1.2rem',
+  },
+}));
+
+const StyledCheckbox = styled(Checkbox)(({ theme }) => ({
+  color: '#666',
+  '&.Mui-checked': {
+    color: '#FF4E4E',
+  },
+}));
+
+const StyledSlider = styled(Slider)(({ theme }) => ({
+  color: '#FF4E4E',
+  '& .MuiSlider-thumb': {
+    '&:hover, &.Mui-focusVisible': {
+      boxShadow: '0 0 0 8px rgba(255, 78, 78, 0.16)',
+    },
+  },
+  '& .MuiSlider-rail': {
+    opacity: 0.32,
+  },
+}));
+
 const Products = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -128,25 +170,60 @@ const Products = () => {
   }, [products, selectedCategories, selectedSizes, priceRange]);
 
   const FilterDrawer = () => (
-    <Box sx={{ width: 250, p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">Filters</Typography>
+    <Box sx={{ width: 280, p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+          }}
+        >
+          Filters
+        </Typography>
         {isMobile && (
-          <IconButton onClick={() => setDrawerOpen(false)}>
-            <Close />
+          <IconButton 
+            onClick={() => setDrawerOpen(false)}
+            sx={{
+              bgcolor: 'rgba(0, 0, 0, 0.04)',
+              borderRadius: '50%',
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.08)',
+              },
+            }}
+          >
+            <Close sx={{ fontSize: '1.2rem' }} />
           </IconButton>
         )}
       </Box>
 
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          fontWeight: 600,
+          mb: 2,
+          color: '#333',
+        }}
+      >
         Categories
       </Typography>
       <List>
         {categories.map((category) => (
           <ListItem key={category} dense>
             <FormControlLabel
+              sx={{
+                '& .MuiTypography-root': {
+                  fontSize: '0.95rem',
+                  color: '#666',
+                  transition: 'color 0.3s ease',
+                },
+                '&:hover .MuiTypography-root': {
+                  color: '#FF4E4E',
+                },
+              }}
               control={
-                <Checkbox 
+                <StyledCheckbox 
                   checked={selectedCategories.includes(category)}
                   onChange={() => handleCategoryChange(category)}
                 />
@@ -157,15 +234,33 @@ const Products = () => {
         ))}
       </List>
 
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          fontWeight: 600,
+          mb: 2,
+          mt: 4,
+          color: '#333',
+        }}
+      >
         Size
       </Typography>
       <FormGroup>
         {sizes.map((size) => (
           <FormControlLabel
             key={size}
+            sx={{
+              '& .MuiTypography-root': {
+                fontSize: '0.95rem',
+                color: '#666',
+                transition: 'color 0.3s ease',
+              },
+              '&:hover .MuiTypography-root': {
+                color: '#FF4E4E',
+              },
+            }}
             control={
-              <Checkbox 
+              <StyledCheckbox 
                 checked={selectedSizes.includes(size)}
                 onChange={() => handleSizeChange(size)}
               />
@@ -175,36 +270,75 @@ const Products = () => {
         ))}
       </FormGroup>
 
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          fontWeight: 600,
+          mb: 2,
+          mt: 4,
+          color: '#333',
+        }}
+      >
         Price Range
       </Typography>
       <Box sx={{ px: 2 }}>
-        <Slider
+        <StyledSlider
           value={priceRange}
           onChange={handlePriceChange}
           valueLabelDisplay="auto"
           min={0}
           max={200}
         />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography>${priceRange[0]}</Typography>
-          <Typography>${priceRange[1]}</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+          <Typography sx={{ color: '#666', fontWeight: 500 }}>
+            ${priceRange[0]}
+          </Typography>
+          <Typography sx={{ color: '#666', fontWeight: 500 }}>
+            ${priceRange[1]}
+          </Typography>
         </Box>
       </Box>
     </Box>
   );
 
   return (
-    <Box sx={{ pt: 8 }}>
-      <Container>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', my: 3 }}>
-          <Typography variant="h4" component="h1">
+    <Box sx={{ pt: 8, bgcolor: '#f8f8f8', minHeight: '100vh' }}>
+      <Container maxWidth="xl">
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            my: 4,
+            pb: 2,
+            borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+          }}
+        >
+          <Typography 
+            variant="h4" 
+            component="h1"
+            sx={{ 
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+            }}
+          >
             Products
           </Typography>
           {isMobile && (
-            <IconButton onClick={() => setDrawerOpen(true)}>
+            <FilterButton onClick={() => setDrawerOpen(true)}>
               <FilterList />
-            </IconButton>
+              <Typography 
+                variant="button" 
+                sx={{ 
+                  display: { xs: 'none', sm: 'block' },
+                  fontWeight: 600,
+                  letterSpacing: '1px',
+                }}
+              >
+                Filter
+              </Typography>
+            </FilterButton>
           )}
         </Box>
 

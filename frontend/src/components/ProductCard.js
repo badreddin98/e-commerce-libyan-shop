@@ -21,17 +21,18 @@ import {
   MenuItem,
   Snackbar,
   Alert,
-  Fade,
   useTheme,
-  styled
+  CardActionArea,
+  Fade,
 } from '@mui/material';
-import {
-  ShoppingCart,
-  Favorite,
-  FavoriteBorder,
-  Share,
-  CompareArrows
-} from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import PaymentIcon from '@mui/icons-material/Payment';
+import ShareIcon from '@mui/icons-material/Share';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -41,123 +42,87 @@ const StyledCard = styled(Card)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   position: 'relative',
-  transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+  transition: 'all 0.3s ease-in-out',
+  border: 'none',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  backgroundColor: 'transparent',
   '&:hover': {
-    transform: 'translateY(-8px)',
-    boxShadow: theme.shadows[8],
+    transform: 'translateY(-4px)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+    '& .quick-actions': {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
   },
 }));
 
-const DiscountBadge = styled(Chip)(({ theme }) => ({
-  position: 'absolute',
-  top: 16,
-  right: 16,
-  backgroundColor: theme.palette.error.main,
-  color: theme.palette.error.contrastText,
-  fontWeight: 'bold',
-}));
-
-const QuickActionButtons = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  top: 16,
-  left: 16,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-  opacity: 0,
-  transform: 'translateX(-10px)',
-  transition: 'opacity 0.3s ease-in-out, transform 0.3s ease-in-out',
-  '$:hover': {
-    opacity: 1,
-    transform: 'translateX(0)',
+const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
+  height: 0,
+  paddingTop: '133.33%',
+  position: 'relative',
+  backgroundColor: theme.palette.grey[50],
+  backgroundSize: 'cover',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': {
+    transform: 'scale(1.05)',
   },
-}));, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Box,
-  Rating,
-  CardActionArea,
-  Button,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Snackbar,
-  Alert,
-} from '@mui/material';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import PaymentIcon from '@mui/icons-material/Payment';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-import { styled } from '@mui/material/styles';
+}));
 
 const DiscountBadge = styled(Box)(({ theme }) => ({
   position: 'absolute',
-  top: 16,
-  right: 16,
-  backgroundColor: theme.palette.error.main,
+  top: 8,
+  right: 8,
+  backgroundColor: '#FF4E4E',
   color: 'white',
   padding: '4px 8px',
-  borderRadius: '4px',
+  borderRadius: '16px',
   zIndex: 1,
-  fontWeight: 'bold',
+  fontWeight: '600',
+  fontSize: '0.75rem',
+  letterSpacing: '0.5px',
+  boxShadow: '0 2px 8px rgba(255, 78, 78, 0.3)',
 }));
 
 const QuickActions = styled(Box)(({ theme }) => ({
   position: 'absolute',
   bottom: 16,
   left: '50%',
-  transform: 'translateX(-50%)',
+  transform: 'translateX(-50%) translateY(20px)',
   display: 'flex',
   gap: theme.spacing(1),
   opacity: 0,
-  transition: 'opacity 0.3s ease-in-out',
-  zIndex: 1,
-  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  transition: 'all 0.3s ease-in-out',
+  zIndex: 2,
+  backgroundColor: 'rgba(255, 255, 255, 0.95)',
   padding: theme.spacing(1),
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[2],
-}));
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  transition: 'transform 0.2s ease-in-out',
-  '&:hover': {
-    transform: 'scale(1.02)',
+  borderRadius: '20px',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+  backdropFilter: 'blur(4px)',
+  '& .MuiIconButton-root': {
+    backgroundColor: 'white',
+    transition: 'all 0.2s ease-in-out',
+    '&:hover': {
+      backgroundColor: theme.palette.primary.main,
+      color: 'white',
+      transform: 'scale(1.1)',
+    },
   },
 }));
 
-const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
-  height: 0,
-  paddingTop: '133.33%', // 4:3 aspect ratio
-  position: 'relative',
-  backgroundColor: theme.palette.grey[100],
-  backgroundSize: 'cover',
-}));
-
 const PriceTypography = styled(Typography)(({ theme }) => ({
-  fontWeight: 'bold',
-  color: theme.palette.primary.main,
+  fontWeight: '600',
+  color: '#FF4E4E',
+  fontSize: '1.1rem',
+  letterSpacing: '0.5px',
 }));
 
 const OriginalPrice = styled(Typography)(({ theme }) => ({
   textDecoration: 'line-through',
   color: theme.palette.text.secondary,
   marginLeft: theme.spacing(1),
+  fontSize: '0.9rem',
+  opacity: 0.7,
 }));
 
 const ProductCard = ({ product }) => {
@@ -241,15 +206,7 @@ const ProductCard = ({ product }) => {
       });
     }
   };
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [favorite, setFavorite] = useState(false);
-  const [quickBuyOpen, setQuickBuyOpen] = useState(false);
-  const [size, setSize] = useState('');
-  const [color, setColor] = useState('');
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-  const { addToCart } = useCart();
-  const { user } = useAuth();
+
 
   const hasOptions = (product.size?.length > 0 || product.color?.length > 0);
 
@@ -366,104 +323,64 @@ const ProductCard = ({ product }) => {
 
   return (
     <>
-    <StyledCard elevation={2}>
-    {loading ? (
-      <Skeleton variant="rectangular" height={200} animation="wave" />
-    ) : (
-      <Box sx={{ position: 'relative' }}>
-        <CardMedia
-          component="img"
-          height="200"
-          image={product.images[0]}
-          alt={product.name}
-          sx={{
-            objectFit: 'cover',
-            opacity: imageLoaded ? 1 : 0,
-            transition: 'opacity 0.3s ease-in-out',
-          }}
-        />
-        
-        {discount > 0 && (
-          <DiscountBadge
-            label={`-${discount}%`}
-            color="error"
-          />
-        )}
-
-        <Fade in={imageLoaded}>
-          <QuickActionButtons>
-            <Tooltip title={favorite ? 'Remove from Wishlist' : 'Add to Wishlist'}>
-              <IconButton
-                size="small"
-                sx={{ bgcolor: 'background.paper' }}
-                onClick={() => setFavorite(!favorite)}
-              >
-                {favorite ? <Favorite color="error" /> : <FavoriteBorder />}
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Share">
-              <IconButton
-                size="small"
-                sx={{ bgcolor: 'background.paper' }}
-                onClick={handleShare}
-              >
-                <Share />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Compare">
-              <IconButton
-                size="small"
-                sx={{ bgcolor: 'background.paper' }}
-              >
-                <CompareArrows />
-              </IconButton>
-            </Tooltip>
-          </QuickActionButtons>
-        </Fade>
-      </Box>
-    )}
-      {product.originalPrice && product.originalPrice > product.price && (
-        <DiscountBadge>
-          -{calculateDiscount()}%
-        </DiscountBadge>
-      )}
-      <CardActionArea>
-        <Box sx={{ position: 'relative' }}>
-          <StyledCardMedia
-            image={product.images[0]}
-            title={product.name}
-          />
-          <QuickActions sx={{ opacity: { xs: 1, sm: 0 }, '&:hover': { opacity: 1 } }}>
-            <IconButton
-              size="small"
-              onClick={handleAddToCart}
-              sx={{ bgcolor: 'background.paper' }}
-            >
-              <AddShoppingCartIcon />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={handleFavoriteClick}
-              sx={{ bgcolor: 'background.paper' }}
-            >
-              {favorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={handleQuickBuy}
-              sx={{ bgcolor: 'background.paper' }}
-            >
-              <PaymentIcon />
-            </IconButton>
-          </QuickActions>
-        </Box>
-        <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Typography gutterBottom variant="h6" component="h2" noWrap>
-            {product.name}
-          </Typography>
-          <Box display="flex" alignItems="center" mb={1}>
+      <StyledCard elevation={2}>
+        {loading ? (
+          <Skeleton variant="rectangular" height={200} animation="wave" />
+        ) : (
+          <CardActionArea onClick={() => navigate(`/product/${product._id}`)}>
+            <Box sx={{ position: 'relative' }}>
+              <StyledCardMedia
+                image={product.images[0]}
+                title={product.name}
+              />
+              {discount > 0 && (
+                <DiscountBadge>
+                  -{discount}%
+                </DiscountBadge>
+              )}
+              <Fade in={imageLoaded}>
+                <QuickActions>
+                  <Tooltip title={favorite ? 'Remove from Wishlist' : 'Add to Wishlist'}>
+                    <IconButton
+                      size="small"
+                      sx={{ bgcolor: 'background.paper' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFavoriteClick();
+                      }}
+                    >
+                      {favorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Share">
+                    <IconButton
+                      size="small"
+                      sx={{ bgcolor: 'background.paper' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShare();
+                      }}
+                    >
+                      <ShareIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Compare">
+                    <IconButton
+                      size="small"
+                      sx={{ bgcolor: 'background.paper' }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <CompareArrowsIcon />
+                    </IconButton>
+                  </Tooltip>
+                </QuickActions>
+              </Fade>
+            </Box>
+            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Typography gutterBottom variant="h6" component="h2" noWrap>
+                {product.name}
+              </Typography>
+              <Box display="flex" alignItems="center" mb={1}>
             <Rating value={product.rating || 0} precision={0.5} readOnly size="small" />
             <Typography variant="body2" color="text.secondary" ml={1}>
               ({product.numReviews || 0})
@@ -481,17 +398,6 @@ const ProductCard = ({ product }) => {
           </Box>
         </CardContent>
 
-    <Box sx={{ p: 2, pt: 0 }}>
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        startIcon={<ShoppingCart />}
-        onClick={handleAddToCart}
-      >
-        {hasOptions ? 'Select Options' : 'Add to Cart'}
-      </Button>
-    </Box>
       </CardActionArea>
       <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
         <Button
@@ -501,81 +407,66 @@ const ProductCard = ({ product }) => {
           onClick={handleAddToCart}
           fullWidth
         >
-          Add to Cart
+          {hasOptions ? 'Select Options' : 'Add to Cart'}
         </Button>
       </Box>
     </StyledCard>
 
     {hasOptions && (
-      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+      <Dialog open={optionsDialogOpen} onClose={() => setOptionsDialogOpen(false)} maxWidth="xs" fullWidth>
         <Box sx={{ position: 'relative', p: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          Select Options
-        </Typography>
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          {product.name}
-        </Typography>
-        <Box sx={{ my: 2 }}>
-        {product.size?.length > 0 && (
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Size</InputLabel>
-            <Select
-              value={size}
-              label="Size"
-              onChange={(e) => setSize(e.target.value)}
-            >
-              {product.size.map((s) => (
-                <MenuItem key={s} value={s}>{s}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
+          <Typography variant="h6" gutterBottom>
+            Select Options
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            {product.name}
+          </Typography>
+          <Box sx={{ my: 2 }}>
+            {product.size?.length > 0 && (
+              <FormControl fullWidth sx={{ mt: 2 }}>
+                <InputLabel>Size</InputLabel>
+                <Select
+                  value={selectedSize}
+                  label="Size"
+                  onChange={(e) => setSelectedSize(e.target.value)}
+                >
+                  {product.size.map((s) => (
+                    <MenuItem key={s} value={s}>{s}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
 
-        {product.color?.length > 0 && (
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>Color</InputLabel>
-            <Select
-              value={color}
-              label="Color"
-              onChange={(e) => setColor(e.target.value)}
-            >
-              {product.color.map((c) => (
-                <MenuItem key={c} value={c}>{c}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleConfirmAdd} variant="contained" color="primary">
-          Add to Cart
-        </Button>
-        </Box>
+            {product.color?.length > 0 && (
+              <FormControl fullWidth sx={{ mt: 2 }}>
+                <InputLabel>Color</InputLabel>
+                <Select
+                  value={selectedColor}
+                  label="Color"
+                  onChange={(e) => setSelectedColor(e.target.value)}
+                >
+                  {product.color.map((c) => (
+                    <MenuItem key={c} value={c}>{c}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+            <Button onClick={() => setOptionsDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddToCart} variant="contained" color="primary">
+              Add to Cart
+            </Button>
+          </Box>
         </Box>
       </Dialog>
-
-    <Snackbar
-      open={snackbar.open}
-      autoHideDuration={3000}
-      onClose={() => setSnackbar({ ...snackbar, open: false })}
-    >
-      <Alert
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        severity={snackbar.severity}
-        variant="filled"
-        sx={{ width: '100%' }}
-      >
-        {snackbar.message}
-      </Alert>
-    </Snackbar>
     )}
 
     <PaymentModal
       open={quickBuyOpen}
       onClose={() => setQuickBuyOpen(false)}
       orderData={{
-        products: [{ ...product, quantity: 1, size, color }],
+        products: [{ ...product, quantity: 1, size: selectedSize, color: selectedColor }],
         totalAmount: product.price,
       }}
       onPaymentComplete={(response) => {
@@ -602,7 +493,6 @@ const ProductCard = ({ product }) => {
         {snackbar.message}
       </Alert>
     </Snackbar>
-    </>
   );
 };
 

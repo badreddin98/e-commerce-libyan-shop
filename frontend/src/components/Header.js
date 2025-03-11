@@ -33,17 +33,23 @@ import { useCart } from '../context/CartContext';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  borderRadius: '20px',
+  backgroundColor: '#f5f5f5',
   '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor: '#eeeeee',
   },
   marginRight: theme.spacing(2),
   marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
     marginLeft: theme.spacing(3),
-    width: 'auto',
+    width: '400px',
+  },
+  transition: 'all 0.3s ease',
+  border: '1px solid transparent',
+  '&:focus-within': {
+    border: '1px solid #FF4E4E',
+    boxShadow: '0 0 0 4px rgba(255, 78, 78, 0.1)',
   },
 }));
 
@@ -61,7 +67,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: \`calc(1em + \${theme.spacing(4)})\`,
+    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
@@ -71,12 +77,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const categories = [
+  { title: 'NEW IN', url: '/category/new' },
   { title: 'WOMEN', url: '/category/women' },
   { title: 'CURVE + PLUS', url: '/category/plus' },
   { title: 'MEN', url: '/category/men' },
   { title: 'KIDS', url: '/category/kids' },
   { title: 'BEAUTY', url: '/category/beauty' },
   { title: 'HOME', url: '/category/home' },
+  { title: 'SALE', url: '/category/sale' }
 ];
 
 const Header = () => {
@@ -125,7 +133,11 @@ const Header = () => {
   );
 
   return (
-    <AppBar position="sticky" sx={{ backgroundColor: 'black' }}>
+    <AppBar position="sticky" sx={{
+      backgroundColor: 'white',
+      color: 'black',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+    }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Mobile Menu Icon */}
@@ -149,14 +161,15 @@ const Header = () => {
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
+              fontFamily: 'Futura, sans-serif',
               fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
+              letterSpacing: '.2rem',
+              color: '#FF4E4E',
               textDecoration: 'none',
+              fontSize: '1.8rem',
             }}
           >
-            SHEIN
+            LIBYANSHOP
           </Typography>
 
           {/* Desktop Navigation */}
@@ -165,7 +178,29 @@ const Header = () => {
               <Button
                 key={category.title}
                 onClick={() => navigate(category.url)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+                sx={{
+                  my: 2,
+                  color: 'black',
+                  display: 'block',
+                  fontWeight: 500,
+                  fontSize: '0.9rem',
+                  letterSpacing: '1px',
+                  position: 'relative',
+                  '&:after': {
+                    content: '""',
+                    position: 'absolute',
+                    width: '0%',
+                    height: '2px',
+                    bottom: '0',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    backgroundColor: '#FF4E4E',
+                    transition: 'width 0.3s ease',
+                  },
+                  '&:hover:after': {
+                    width: '80%',
+                  },
+                }}
               >
                 {category.title}
               </Button>
@@ -185,16 +220,34 @@ const Header = () => {
 
           {/* User Actions */}
           <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center' }}>
-            <IconButton color="inherit">
+            <IconButton
+              sx={{
+                color: 'black',
+                '&:hover': { color: '#FF4E4E' },
+                transition: 'color 0.3s ease',
+              }}
+            >
               <Favorite />
             </IconButton>
             
             <IconButton 
-              color="inherit" 
               onClick={() => navigate('/cart')}
-              sx={{ mr: 2 }}
+              sx={{
+                mr: 2,
+                color: 'black',
+                '&:hover': { color: '#FF4E4E' },
+                transition: 'color 0.3s ease',
+              }}
             >
-              <Badge badgeContent={cartItems.length} color="error">
+              <Badge 
+                badgeContent={cartItems.length} 
+                sx={{
+                  '& .MuiBadge-badge': {
+                    backgroundColor: '#FF4E4E',
+                    color: 'white',
+                  },
+                }}
+              >
                 <ShoppingCart />
               </Badge>
             </IconButton>

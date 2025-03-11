@@ -22,15 +22,19 @@ const Footer = () => {
   const footerSections = [
     {
       title: 'COMPANY INFO',
-      links: ['About SHEIN', 'Affiliate', 'Fashion Blogger', 'Careers'],
+      links: ['About LibyanShop', 'Affiliate Program', 'Fashion Bloggers', 'Careers', 'Student Discount'],
     },
     {
       title: 'HELP & SUPPORT',
-      links: ['Shipping Info', 'Returns', 'How to Order', 'How to Track'],
+      links: ['Shipping Information', 'Return Policy', 'How to Order', 'Track Order', 'Size Guide', 'VIP Program'],
     },
     {
       title: 'CUSTOMER CARE',
-      links: ['Contact Us', 'Payment Methods', 'Bonus Point', 'Size Guide'],
+      links: ['Contact Us', 'Payment Methods', 'Bonus Points', 'FAQ', 'Terms & Conditions', 'Privacy Policy'],
+    },
+    {
+      title: 'DOWNLOAD APP',
+      links: ['Get the best experience with our mobile app', 'iOS App Store', 'Google Play Store'],
     },
   ];
 
@@ -38,18 +42,19 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        bgcolor: 'black',
-        color: 'white',
-        pt: 6,
-        pb: 3,
+        bgcolor: '#1a1a1a',
+        color: '#ffffff',
+        pt: 8,
+        pb: 4,
         mt: 'auto',
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
       }}
     >
       <Container maxWidth="lg">
         {/* Newsletter Section */}
         <Box sx={{ mb: 6 }}>
           <Typography variant="h6" gutterBottom>
-            SIGN UP FOR SHEIN STYLE NEWS
+            JOIN THE LIBYANSHOP FAMILY
           </Typography>
           <Box
             component="form"
@@ -67,17 +72,37 @@ const Footer = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   bgcolor: 'white',
+                  borderRadius: '24px',
+                  '& fieldset': {
+                    borderColor: 'rgba(255, 255, 255, 0.23)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#FF4E4E',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#FF4E4E',
+                  },
+                },
+                '& .MuiOutlinedInput-input': {
+                  '&::placeholder': {
+                    color: '#666',
+                    opacity: 1,
+                  },
                 },
               }}
             />
             <Button
               variant="contained"
               sx={{
-                bgcolor: 'white',
-                color: 'black',
+                bgcolor: '#FF4E4E',
+                color: 'white',
+                borderRadius: '24px',
+                px: 4,
                 '&:hover': {
-                  bgcolor: 'grey.100',
+                  bgcolor: '#ff3333',
                 },
+                fontWeight: 600,
+                letterSpacing: '1px',
               }}
             >
               SUBSCRIBE
@@ -116,24 +141,45 @@ const Footer = () => {
 
           {/* Social Media Section */}
           <Grid item xs={12} sm={6} md={3}>
-            <Typography variant="subtitle1" gutterBottom>
-              FIND US ON
+            <Typography variant="subtitle1" gutterBottom sx={{ mb: 2 }}>
+              CONNECT WITH US
             </Typography>
-            <Box>
-              <IconButton color="inherit">
-                <Facebook />
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <IconButton 
+                sx={{ 
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  '&:hover': { bgcolor: '#FF4E4E' },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <Facebook sx={{ color: 'white' }} />
               </IconButton>
-              <IconButton color="inherit">
-                <Twitter />
+              <IconButton 
+                sx={{ 
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  '&:hover': { bgcolor: '#FF4E4E' },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <Twitter sx={{ color: 'white' }} />
               </IconButton>
-              <IconButton color="inherit">
-                <Instagram />
+              <IconButton 
+                sx={{ 
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  '&:hover': { bgcolor: '#FF4E4E' },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <Instagram sx={{ color: 'white' }} />
               </IconButton>
-              <IconButton color="inherit">
-                <Pinterest />
-              </IconButton>
-              <IconButton color="inherit">
-                <YouTube />
+              <IconButton 
+                sx={{ 
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  '&:hover': { bgcolor: '#FF4E4E' },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <YouTube sx={{ color: 'white' }} />
               </IconButton>
             </Box>
           </Grid>
@@ -152,7 +198,7 @@ const Footer = () => {
           }}
         >
           <Typography variant="body2" color="grey.400">
-            ©2024 SHEIN All Rights Reserved
+            ©2024 LIBYANSHOP All Rights Reserved
           </Typography>
           <Box
             sx={{

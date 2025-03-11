@@ -286,172 +286,174 @@ const ProductCard = ({ product }) => {
         {loading ? (
           <Skeleton variant="rectangular" height={200} animation="wave" />
         ) : (
-          <CardActionArea onClick={() => navigate(`/product/${product._id}`)}>
-            <Box sx={{ position: 'relative' }}>
-              <StyledCardMedia
-                image={product.images[0]}
-                title={product.name}
-              />
-              {discount > 0 && (
-                <DiscountBadge>
-                  -{discount}%
-                </DiscountBadge>
-              )}
-              <Fade in={imageLoaded}>
-                <QuickActions>
-                  <Tooltip title={favorite ? 'Remove from Wishlist' : 'Add to Wishlist'}>
-                    <IconButton
-                      size="small"
-                      sx={{ bgcolor: 'background.paper' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleFavoriteClick();
-                      }}
-                    >
-                      {favorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Share">
-                    <IconButton
-                      size="small"
-                      sx={{ bgcolor: 'background.paper' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleShare();
-                      }}
-                    >
-                      <ShareIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Compare">
-                    <IconButton
-                      size="small"
-                      sx={{ bgcolor: 'background.paper' }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <CompareArrowsIcon />
-                    </IconButton>
-                  </Tooltip>
-                </QuickActions>
-              </Fade>
+          <>
+            <CardActionArea onClick={() => navigate(`/product/${product._id}`)}>
+              <Box sx={{ position: 'relative' }}>
+                <StyledCardMedia
+                  image={product.images[0]}
+                  title={product.name}
+                />
+                {discount > 0 && (
+                  <DiscountBadge>
+                    -{discount}%
+                  </DiscountBadge>
+                )}
+                <Fade in={imageLoaded}>
+                  <QuickActions>
+                    <Tooltip title={favorite ? 'Remove from Wishlist' : 'Add to Wishlist'}>
+                      <IconButton
+                        size="small"
+                        sx={{ bgcolor: 'background.paper' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFavoriteClick();
+                        }}
+                      >
+                        {favorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Share">
+                      <IconButton
+                        size="small"
+                        sx={{ bgcolor: 'background.paper' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShare();
+                        }}
+                      >
+                        <ShareIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Compare">
+                      <IconButton
+                        size="small"
+                        sx={{ bgcolor: 'background.paper' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <CompareArrowsIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </QuickActions>
+                </Fade>
+              </Box>
+              <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Typography gutterBottom variant="h6" component="h2" noWrap>
+                  {product.name}
+                </Typography>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Rating value={product.rating || 0} precision={0.5} readOnly size="small" />
+                  <Typography variant="body2" color="text.secondary" ml={1}>
+                    ({product.numReviews || 0})
+                  </Typography>
+                </Box>
+                <Box display="flex" alignItems="center">
+                  <PriceTypography variant="h6">
+                    ${(product.price || 0).toFixed(2)}
+                  </PriceTypography>
+                  {product.originalPrice && product.originalPrice > product.price && (
+                    <OriginalPrice variant="body1">
+                      ${(product.originalPrice || 0).toFixed(2)}
+                    </OriginalPrice>
+                  )}
+                </Box>
+              </CardContent>
+            </CardActionArea>
+            <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddShoppingCartIcon />}
+                onClick={handleAddToCart}
+                fullWidth
+              >
+                {hasOptions ? 'Select Options' : 'Add to Cart'}
+              </Button>
             </Box>
-            <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography gutterBottom variant="h6" component="h2" noWrap>
-                {product.name}
-              </Typography>
-              <Box display="flex" alignItems="center" mb={1}>
-            <Rating value={product.rating || 0} precision={0.5} readOnly size="small" />
-            <Typography variant="body2" color="text.secondary" ml={1}>
-              ({product.numReviews || 0})
+          </>
+        )}
+      </StyledCard>
+
+      {hasOptions && (
+        <Dialog open={optionsDialogOpen} onClose={() => setOptionsDialogOpen(false)} maxWidth="xs" fullWidth>
+          <Box sx={{ position: 'relative', p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Select Options
             </Typography>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {product.name}
+            </Typography>
+            <Box sx={{ my: 2 }}>
+              {product.size?.length > 0 && (
+                <FormControl fullWidth sx={{ mt: 2 }}>
+                  <InputLabel>Size</InputLabel>
+                  <Select
+                    value={selectedSize}
+                    label="Size"
+                    onChange={(e) => setSelectedSize(e.target.value)}
+                  >
+                    {product.size.map((s) => (
+                      <MenuItem key={s} value={s}>{s}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+
+              {product.color?.length > 0 && (
+                <FormControl fullWidth sx={{ mt: 2 }}>
+                  <InputLabel>Color</InputLabel>
+                  <Select
+                    value={selectedColor}
+                    label="Color"
+                    onChange={(e) => setSelectedColor(e.target.value)}
+                  >
+                    {product.color.map((c) => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+              <Button onClick={() => setOptionsDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleAddToCart} variant="contained" color="primary">
+                Add to Cart
+              </Button>
+            </Box>
           </Box>
-          <Box display="flex" alignItems="center">
-            <PriceTypography variant="h6">
-              ${(product.price || 0).toFixed(2)}
-            </PriceTypography>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <OriginalPrice variant="body1">
-                ${(product.originalPrice || 0).toFixed(2)}
-              </OriginalPrice>
-            )}
-          </Box>
-        </CardContent>
+        </Dialog>
+      )}
 
-      </CardActionArea>
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddShoppingCartIcon />}
-          onClick={handleAddToCart}
-          fullWidth
-        >
-          {hasOptions ? 'Select Options' : 'Add to Cart'}
-        </Button>
-      </Box>
-    </StyledCard>
+      <PaymentModal
+        open={quickBuyOpen}
+        onClose={() => setQuickBuyOpen(false)}
+        orderData={{
+          products: [{ ...product, quantity: 1, size: selectedSize, color: selectedColor }],
+          totalAmount: product.price,
+        }}
+        onPaymentComplete={(response) => {
+          setSnackbar({
+            open: true,
+            message: 'Order placed successfully!',
+            severity: 'success',
+          });
+          setQuickBuyOpen(false);
+        }}
+      />
 
-    {hasOptions && (
-      <Dialog open={optionsDialogOpen} onClose={() => setOptionsDialogOpen(false)} maxWidth="xs" fullWidth>
-        <Box sx={{ position: 'relative', p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Select Options
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            {product.name}
-          </Typography>
-          <Box sx={{ my: 2 }}>
-            {product.size?.length > 0 && (
-              <FormControl fullWidth sx={{ mt: 2 }}>
-                <InputLabel>Size</InputLabel>
-                <Select
-                  value={selectedSize}
-                  label="Size"
-                  onChange={(e) => setSelectedSize(e.target.value)}
-                >
-                  {product.size.map((s) => (
-                    <MenuItem key={s} value={s}>{s}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-
-            {product.color?.length > 0 && (
-              <FormControl fullWidth sx={{ mt: 2 }}>
-                <InputLabel>Color</InputLabel>
-                <Select
-                  value={selectedColor}
-                  label="Color"
-                  onChange={(e) => setSelectedColor(e.target.value)}
-                >
-                  {product.color.map((c) => (
-                    <MenuItem key={c} value={c}>{c}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <Button onClick={() => setOptionsDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddToCart} variant="contained" color="primary">
-              Add to Cart
-            </Button>
-          </Box>
-        </Box>
-      </Dialog>
-    )}
-
-    <PaymentModal
-      open={quickBuyOpen}
-      onClose={() => setQuickBuyOpen(false)}
-      orderData={{
-        products: [{ ...product, quantity: 1, size: selectedSize, color: selectedColor }],
-        totalAmount: product.price,
-      }}
-      onPaymentComplete={(response) => {
-        setSnackbar({
-          open: true,
-          message: 'Order placed successfully!',
-          severity: 'success',
-        });
-        setQuickBuyOpen(false);
-      }}
-    />
-
-    <Snackbar
-      open={snackbar.open}
-      autoHideDuration={3000}
-      onClose={handleSnackbarClose}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-    >
-      <Alert
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
         onClose={handleSnackbarClose}
-        severity={snackbar.severity}
-        sx={{ width: '100%' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        {snackbar.message}
-      </Alert>
-    </Snackbar>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

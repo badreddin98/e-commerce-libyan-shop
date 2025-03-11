@@ -36,6 +36,7 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import PaymentModal from './PaymentModal';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -136,6 +137,7 @@ const ProductCard = ({ product }) => {
   const [selectedColor, setSelectedColor] = useState('');
   const [optionsDialogOpen, setOptionsDialogOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [quickBuyOpen, setQuickBuyOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {

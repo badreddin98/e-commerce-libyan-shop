@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 
 // Load env vars
@@ -20,6 +21,17 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working' });
 });
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static('frontend/build'));
+
+  // Any route that is not api will be redirected to index.html
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'));
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 

@@ -122,6 +122,7 @@ const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -144,22 +145,27 @@ const Home = () => {
       try {
         // Fetch featured products
         const featuredResponse = await fetch('/api/products/featured');
+        if (!featuredResponse.ok) throw new Error('Failed to fetch featured products');
         const featuredData = await featuredResponse.json();
-        setFeaturedProducts(featuredData);
+        setFeaturedProducts(Array.isArray(featuredData) ? featuredData : []);
 
         // Fetch trending products
         const trendingResponse = await fetch('/api/products/trending');
+        if (!trendingResponse.ok) throw new Error('Failed to fetch trending products');
         const trendingData = await trendingResponse.json();
-        setTrendingProducts(trendingData);
+        setTrendingProducts(Array.isArray(trendingData) ? trendingData : []);
 
         // Fetch new arrivals
         const newArrivalsResponse = await fetch('/api/products/new-arrivals');
+        if (!newArrivalsResponse.ok) throw new Error('Failed to fetch new arrivals');
         const newArrivalsData = await newArrivalsResponse.json();
-        setNewArrivals(newArrivalsData);
+        setNewArrivals(Array.isArray(newArrivalsData) ? newArrivalsData : []);
 
+        setError(null);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching products:', error);
+        setError(error.message);
         setLoading(false);
       }
     };

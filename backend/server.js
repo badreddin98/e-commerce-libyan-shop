@@ -44,20 +44,42 @@ app.get('/debug', (req, res) => {
   });
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: process.env.NODE_ENV === 'production' ? 'Server Error' : err.message,
+    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
+  });
+});
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
   const frontendBuildPath = path.resolve(__dirname, '../frontend/build');
   console.log('Frontend build path:', frontendBuildPath);
   
-  app.use(express.static(frontendBuildPath));
+  // Verify the build directory exists
+  try {
+    if (require('fs').existsSync(frontendBuildPath)) {
+      app.use(express.static(frontendBuildPath));
 
-  // Any route that is not api will be redirected to index.html
-  app.get('*', (req, res) => {
-    const indexPath = path.join(frontendBuildPath, 'index.html');
-    console.log('Serving index.html from:', indexPath);
-    res.sendFile(indexPath);
-  });
+      // Any route that is not api will be redirected to index.html
+      app.get('*', (req, res) => {
+        const indexPath = path.join(frontendBuildPath, 'index.html');
+        console.log('Serving index.html from:', indexPath);
+        if (require('fs').existsSync(indexPath)) {
+          res.sendFile(indexPath);
+        } else {
+          res.status(404).json({ message: 'Frontend build not found' });
+        }
+      });
+    } else {
+      console.warn('Frontend build directory not found:', frontendBuildPath);
+    }
+  } catch (error) {
+    console.error('Error serving static files:', error);
+  }
 }
 
 const PORT = process.env.PORT || 5000;
@@ -65,15 +87,31 @@ const PORT = process.env.PORT || 5000;
 // Connect to database and start server
 const startServer = async () => {
   try {
+    // Validate required environment variables
+    const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+    const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+    
+    if (missingEnvVars.length > 0) {
+      throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+    }
+
     await connectDB();
     console.log('MongoDB connection successful');
     
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`Test the API at: http://localhost:${PORT}/api/test`);
-      }
+      console.log('Application started successfully');
     });
+
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM signal received: closing HTTP server');
+      server.close(() => {
+        console.log('HTTP server closed');
+        process.exit(0);
+      });
+    });
+
   } catch (error) {
     console.error('Failed to start server:', error.message);
     console.error('Error stack:', error.stack);

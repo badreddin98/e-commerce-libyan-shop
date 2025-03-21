@@ -9,8 +9,18 @@ dotenv.config();
 
 const app = express();
 
+// Enhanced error handling for uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL || 'https://libyan-shop.herokuapp.com'
+    : 'http://localhost:3000'
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -59,13 +69,23 @@ const startServer = async () => {
     console.log('MongoDB connection successful');
     
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log(`Test the API at: http://localhost:${PORT}/api/test`);
+      console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`Test the API at: http://localhost:${PORT}/api/test`);
+      }
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('Failed to start server:', error.message);
+    console.error('Error stack:', error.stack);
     process.exit(1);
   }
 };
+
+// Handle promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+  // Close server & exit process
+  app.close(() => process.exit(1));
+});
 
 startServer();

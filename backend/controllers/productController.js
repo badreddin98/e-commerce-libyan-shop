@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const Product = require('../models/productModel');
+const Order = require('../models/orderModel');
 const mongoose = require('mongoose');
+const { analyzeUserPreferences } = require('../utils/userPreferences');
 
 // @desc    Fetch all products
 // @route   GET /api/products

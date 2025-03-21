@@ -18,8 +18,11 @@ process.on('uncaughtException', (err) => {
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL || 'https://libyan-shop.herokuapp.com'
-    : 'http://localhost:3000'
+    ? ['https://libyan-shop.herokuapp.com', 'https://libyan-shop.herokuapp.com/']
+    : 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

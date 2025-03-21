@@ -56,34 +56,35 @@ app.use((err, req, res, next) => {
   });
 });
 
+// API routes
+app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/cart', require('./routes/cartRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
   const frontendBuildPath = path.resolve(__dirname, '../frontend/build');
   console.log('Frontend build path:', frontendBuildPath);
   
-  // Verify the build directory exists
-  try {
-    if (require('fs').existsSync(frontendBuildPath)) {
-      app.use(express.static(frontendBuildPath));
+  // Serve static files
+  app.use(express.static(frontendBuildPath));
 
-      // Any route that is not api will be redirected to index.html
-      app.get('*', (req, res) => {
-        const indexPath = path.join(frontendBuildPath, 'index.html');
-        console.log('Serving index.html from:', indexPath);
-        if (require('fs').existsSync(indexPath)) {
-          res.sendFile(indexPath);
-        } else {
-          res.status(404).json({ message: 'Frontend build not found' });
-        }
-      });
-    } else {
-      console.warn('Frontend build directory not found:', frontendBuildPath);
-    }
-  } catch (error) {
-    console.error('Error serving static files:', error);
-  }
+  // Any route that is not api will be redirected to index.html
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'));
+  });
 }
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
+  res.status(500).json({
+    success: false,
+    error: process.env.NODE_ENV === 'production' ? 'Server Error' : err.message
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 

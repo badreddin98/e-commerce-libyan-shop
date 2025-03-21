@@ -1,13 +1,15 @@
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://libyan-shop.herokuapp.com/api'
+  ? '/api'  // Use relative path in production for better reliability
   : 'http://localhost:5000/api';
 
 const API_CONFIG = {
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json'
   },
-  withCredentials: true
+  withCredentials: true,
+  timeout: 30000 // 30 second timeout
 };
 
 export default API_BASE_URL;

@@ -34,32 +34,24 @@ app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 // Test route
 app.get('/api/test', (req, res) => {
-  res.json({ message: 'API is working' });
-});
-
-// Debug route to check environment
-app.get('/debug', (req, res) => {
-  res.json({
-    nodeEnv: process.env.NODE_ENV,
-    mongoUri: process.env.MONGODB_URI ? 'Set' : 'Not Set',
-    currentDir: __dirname,
-    frontendBuildPath: path.resolve(__dirname, '../frontend/build')
+  res.json({ 
+    message: 'API is working',
+    env: process.env.NODE_ENV,
+    time: new Date().toISOString()
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: process.env.NODE_ENV === 'production' ? 'Server Error' : err.message,
-    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
+// Debug route to check environment (only in development)
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/debug', (req, res) => {
+    res.json({
+      nodeEnv: process.env.NODE_ENV,
+      mongoUri: process.env.MONGODB_URI ? 'Set' : 'Not Set',
+      currentDir: __dirname,
+      frontendBuildPath: path.resolve(__dirname, '../frontend/build')
+    });
   });
-});
-
-// API routes
-app.use('/api/products', require('./routes/productRoutes'));
-app.use('/api/cart', require('./routes/cartRoutes'));
-app.use('/api/analytics', require('./routes/analyticsRoutes'));
+}
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
@@ -99,26 +91,48 @@ const startServer = async () => {
       throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
     }
 
+    // Connect to MongoDB
     await connectDB();
-    console.log('MongoDB connection successful');
     
+    // Start the server
     const server = app.listen(PORT, () => {
       console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-      console.log('Application started successfully');
+      if (process.env.NODE_ENV === 'production') {
+        console.log('MongoDB URI:', process.env.MONGODB_URI?.replace(/:[^:/@]+@/, ':****@'));
+      }
     });
 
     // Graceful shutdown
-    process.on('SIGTERM', () => {
-      console.log('SIGTERM signal received: closing HTTP server');
-      server.close(() => {
-        console.log('HTTP server closed');
-        process.exit(0);
+    const gracefulShutdown = async () => {
+      console.log('Starting graceful shutdown...');
+      server.close(async () => {
+        console.log('Express server closed.');
+        try {
+          await mongoose.connection.close();
+          console.log('MongoDB connection closed.');
+          process.exit(0);
+        } catch (err) {
+          console.error('Error during MongoDB disconnect:', err);
+          process.exit(1);
+        }
       });
-    });
+
+      // Force shutdown after timeout
+      setTimeout(() => {
+        console.error('Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+      }, 10000);
+    };
+
+    // Handle shutdown signals
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
 
   } catch (error) {
-    console.error('Failed to start server:', error.message);
-    console.error('Error stack:', error.stack);
+    console.error('Failed to start server:', error);
+    if (process.env.NODE_ENV === 'production') {
+      console.error('MongoDB URI:', process.env.MONGODB_URI?.replace(/:[^:/@]+@/, ':****@'));
+    }
     process.exit(1);
   }
 };
@@ -126,8 +140,7 @@ const startServer = async () => {
 // Handle promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Promise Rejection:', err);
-  // Close server & exit process
-  app.close(() => process.exit(1));
+  process.exit(1);
 });
 
 startServer();

@@ -178,10 +178,213 @@ const getRelatedProducts = async (req, res) => {
   }
 };
 
+// @desc    Search products with advanced filtering
+// @route   GET /api/products/search
+// @access  Public
+const searchProducts = asyncHandler(async (req, res) => {
+  try {
+    const {
+      query,
+      category,
+      minPrice,
+      maxPrice,
+      size,
+      rating,
+      inStock,
+      onSale,
+      sort,
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    // Build filter criteria
+    const filter = {};
+
+    if (query) {
+      filter.$or = [
+        { name: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } }
+      ];
+    }
+
+    if (category) filter.category = category;
+    if (size) filter.size = size;
+    if (inStock === 'true') filter.countInStock = { $gt: 0 };
+    if (onSale === 'true') filter.originalPrice = { $gt: '$price' };
+    
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (rating) {
+      filter.rating = { $gte: Number(rating) };
+    }
+
+    // Build sort criteria
+    let sortCriteria = {};
+    switch (sort) {
+      case 'price_asc':
+        sortCriteria.price = 1;
+        break;
+      case 'price_desc':
+        sortCriteria.price = -1;
+        break;
+      case 'rating':
+        sortCriteria.rating = -1;
+        break;
+      case 'newest':
+        sortCriteria.createdAt = -1;
+        break;
+      default:
+        sortCriteria.createdAt = -1;
+    }
+
+    // Execute query with pagination
+    const skip = (page - 1) * limit;
+    const products = await Product.find(filter)
+      .sort(sortCriteria)
+      .skip(skip)
+      .limit(Number(limit));
+
+    // Get total count for pagination
+    const total = await Product.countDocuments(filter);
+
+    res.json({
+      success: true,
+      count: products.length,
+      total,
+      pages: Math.ceil(total / limit),
+      currentPage: page,
+      products
+    });
+  } catch (error) {
+    console.error('Search error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error searching products'
+    });
+  }
+});
+
+// @desc    Get available filters
+// @route   GET /api/products/filters
+// @access  Public
+const getFilters = asyncHandler(async (req, res) => {
+  try {
+    const [categories, sizes, priceRange] = await Promise.all([
+      Product.distinct('category'),
+      Product.distinct('size'),
+      Product.aggregate([
+        {
+          $group: {
+            _id: null,
+            minPrice: { $min: '$price' },
+            maxPrice: { $max: '$price' }
+          }
+        }
+      ])
+    ]);
+
+    res.json({
+      success: true,
+      filters: {
+        categories,
+        sizes,
+        priceRange: priceRange[0] || { minPrice: 0, maxPrice: 1000 }
+      }
+    });
+  } catch (error) {
+    console.error('Filter error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error getting filters'
+    });
+  }
+});
+
+// @desc    Get personalized recommendations
+// @route   GET /api/products/recommendations
+// @access  Private
+const getRecommendations = asyncHandler(async (req, res) => {
+  try {
+    // Get user's purchase history and viewed products
+    const userHistory = await Order.find({ user: req.user._id })
+      .select('orderItems')
+      .populate('orderItems.product');
+
+    // Extract categories and preferences
+    const userPreferences = analyzeUserPreferences(userHistory);
+
+    // Find products matching user preferences
+    const recommendations = await Product.aggregate([
+      {
+        $match: {
+          category: { $in: userPreferences.categories },
+          price: { $gte: userPreferences.minPrice, $lte: userPreferences.maxPrice }
+        }
+      },
+      { $sample: { size: 10 } }
+    ]);
+
+    res.json({
+      success: true,
+      recommendations
+    });
+  } catch (error) {
+    console.error('Recommendation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error getting recommendations'
+    });
+  }
+});
+
+// @desc    Get similar products
+// @route   GET /api/products/similar/:productId
+// @access  Public
+const getSimilarProducts = asyncHandler(async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.productId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found'
+      });
+    }
+
+    // Find similar products based on category and price range
+    const similarProducts = await Product.find({
+      _id: { $ne: product._id },
+      category: product.category,
+      price: {
+        $gte: product.price * 0.7,
+        $lte: product.price * 1.3
+      }
+    }).limit(6);
+
+    res.json({
+      success: true,
+      products: similarProducts
+    });
+  } catch (error) {
+    console.error('Similar products error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error getting similar products'
+    });
+  }
+});
+
 module.exports = {
   getProducts,
   getProductById,
   createProduct,
+  searchProducts,
+  getFilters,
+  getRecommendations,
+  getSimilarProducts,
   updateProduct,
   deleteProduct,
   getFeaturedProducts,

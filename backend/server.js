@@ -2,6 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
 const connectDB = require('./config/db');
 
 // Load env vars
@@ -15,22 +19,37 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-// Middleware
+// Security middleware
+app.use(helmet());
+app.use(compression());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use('/api/', limiter);
+
+// Logging
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// CORS and body parsing
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://libyan-shop.herokuapp.com', 'https://libyan-shop.herokuapp.com/']
+    ? [process.env.CLIENT_URL]
     : 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
 
 // Test route
 app.get('/api/test', (req, res) => {
